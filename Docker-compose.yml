@@ -1,0 +1,34 @@
+version: '3.9'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgres://dpt:dpt@db:5432/dpt_saas
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: dpt
+      POSTGRES_PASSWORD: dpt
+      POSTGRES_DB: dpt_saas
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_data:
